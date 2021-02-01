@@ -9,7 +9,7 @@ import (
 var logger = log.New(os.Stdout)
 
 func main() {
-	// get last command
+	// getChannel last command
 	command := os.Args[len(os.Args)-1]
 	if command == "create" {
 		CreateConfig()
@@ -42,6 +42,8 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
+	// set the config path to the command name
+	cfg.configPath = command
 
 	telegramBotToken := cfg.TelegramApiToken
 	// create the telegram bot
@@ -51,6 +53,7 @@ func main() {
 	}
 
 	telegramBot.Debug = false
+
 
 	TelegramEventHandler(telegramBot, cfg)
 

@@ -11,11 +11,11 @@ import (
 from user input. */
 func CreateConfig() {
 	cfg := Config{}
-	cfg.Channels = map[TelegramChannel]bool{}
+	cfg.Channels = map[TelegramChannel]ChannelConfig{}
 
 	var inputBuf string
 
-	// get Telegram Api Token from @BotFather
+	// getChannel Telegram Api Token from @BotFather
 	fmt.Print("Enter Telegram API Token: ")
 	_, err := fmt.Scanln(&inputBuf)
 	if err != nil {
@@ -25,7 +25,7 @@ func CreateConfig() {
 	fmt.Println("")
 	cfg.TelegramApiToken = inputBuf
 
-	// get DiscordApiToken from Discord Application portal
+	// getChannel DiscordApiToken from Discord Application portal
 	fmt.Print("Enter Discord API Token: ")
 	_, err = fmt.Scanln(&inputBuf)
 	if err != nil {
@@ -53,7 +53,7 @@ func CreateConfig() {
 
 		telegramChanIdTyped := TelegramChannel(telegramChanId)
 
-		cfg.Channels[telegramChanIdTyped] = true
+		cfg.Channels[telegramChanIdTyped] = ChannelConfig{Reminder: map[string]Reminders{}}
 
 	}
 
@@ -67,13 +67,13 @@ func CreateConfig() {
 }
 
 /* ConfigFromFile creates a Config object from a JSON configuration file */
-func ConfigFromFile(filepath string) (Config, error) {
+func ConfigFromFile(filepath string) (*Config, error) {
 	rawData, err := ioutil.ReadFile(filepath)
-	var cfg Config
+	var cfg *Config
 	err = json.Unmarshal(rawData, &cfg)
 	if err != nil {
 		logger.Fatal(err)
-		return Config{}, err
+		return nil, err
 	}
 	return cfg, nil
 }
