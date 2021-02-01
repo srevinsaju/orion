@@ -14,20 +14,20 @@ func main() {
 	if command == "create" {
 		CreateConfig()
 		logger.Info("Config file written. Call `gofer` like")
-		logger.Infof("~ $ gofer path/to/config.json")
+		logger.Infof("~ $ orion path/to/config.json")
 		return
 	}
 
-	if command == "gofer" {
+	if command == "orion" {
 		// the user has not provided any commands along with the executable name
 		// so, we should show the usage
 		logger.Info("orion : yet another telegram pin bot")
 		logger.Info("")
 		logger.Info("To load an existing configuration: ")
-		logger.Info("  $ gofer path/to/config.json")
+		logger.Info("  $ orion path/to/config.json")
 		logger.Info("")
 		logger.Info("To create a new configuration in current directory:")
-		logger.Info("  $ gofer create")
+		logger.Info("  $ orion create")
 		return
 
 	}
