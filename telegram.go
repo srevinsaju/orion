@@ -49,7 +49,7 @@ func OnPinMessageHandler(h MessageHandlerArgs){
 	}
 }
 
-/* OnScheduleMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
+/* OnScheduleMessageHandler handles messages which aim at scheduling using Cron Syntax */
 func OnScheduleMessageHandler(h MessageHandlerArgs){
 
 	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID,"")
@@ -105,6 +105,80 @@ func OnScheduleMessageHandler(h MessageHandlerArgs){
 
 }
 
+/* OnUnScheduleMessageHandler handles messages which aim at unscheduling using Cron Syntax */
+func OnUnScheduleMessageHandler(h MessageHandlerArgs){
+
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID,"")
+
+	cronJob := h.arguments
+
+	// -->
+	val, err := getChannel(h)
+	if err != nil {
+		logger.Warnf("Failed to getChannel channel configuration, %s", h.update.Message.Chat.ID)
+		return
+	}
+
+	_, ok := val.Reminder[cronJob]
+	if ! ok {
+		message := fmt.Sprintf("Failed to find cron job '<code>%s</code>' in the listing", cronJob)
+		logger.Warn(message)
+		msg.Text = message
+	} else {
+		logger.Debug("Deleting cronJob from local data")
+		delete(val.Reminder, cronJob)
+		logger.Debug("Updating configuration")
+		h.config.Write()
+
+		msg.Text = fmt.Sprintf("Removed reminder for <code>%s</code>. Updating cron jobs with new config", cronJob)
+	}
+
+	// set the parse mode to html
+	msg.ParseMode = "html"
+	_, err = h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+	h.cronMgr.Stop()
+	ScheduleCronFromConfig(h.config, h.bot, h.cronMgr)
+	go h.cronMgr.Start()
+
+	msgSuccess := tgbotapi.NewMessage(h.update.Message.Chat.ID,"CronJobs reloaded 🚀")
+	_, err = h.bot.Send(msgSuccess)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+}
+
+/* OnListScheduleMessageHandler handles messages which aim at list scheduling using Cron Syntax */
+func OnListScheduleMessageHandler(h MessageHandlerArgs){
+
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID,"")
+
+	// -->
+	val, err := getChannel(h)
+	if err != nil {
+		logger.Warnf("Failed to getChannel channel configuration, %s", h.update.Message.Chat.ID)
+		return
+	}
+
+	var scheduledCronJobsMessages []string
+	for _, v := range val.Reminder {
+		scheduledCronJobsMessages =
+			append(scheduledCronJobsMessages, fmt.Sprintf("✨ <code>%s</code> 🢂 <i>%s</i>", v.When, v.What))
+	}
+	messages := strings.Join(scheduledCronJobsMessages, string('\n'))
+	messages = "<b>🚨 Scheduled Reminders</b> \n\n" + messages
+
+	msg.Text = messages
+	msg.ParseMode = "html"
+	_, err = h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+}
+
+
 
 /* OnMeMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
 func OnMeMessageHandler(h MessageHandlerArgs){
@@ -158,6 +232,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		handler = OnMeMessageHandler
 	case "schedule":
 		handler = OnScheduleMessageHandler
+	case "unschedule":
+		handler = OnUnScheduleMessageHandler
+	case "listscheduled":
+		handler = OnListScheduleMessageHandler
 	default:
 		handler = OnMessageNotCommandMatchHandler
 	}
@@ -189,26 +267,8 @@ func TelegramEventHandler(telegramBot *tgbotapi.BotAPI, config *Config) {
 	}
 	c := cron.NewWithLocation(location)
 
-
-	for chanId, chanInstance := range config.Channels {
-		chanIdInt := int64(chanId)
-		for k, v := range chanInstance.Reminder {
-
-			err = c.AddFunc(k, func() {
-				if err != nil {
-					return
-				}
-				logger.Infof("Triggering cronjob set at %s in %s", k, chanId)
-				msgCron := tgbotapi.NewMessage(chanIdInt, v.What)
-				_, err_ := telegramBot.Send(msgCron)
-				if err_ != nil {
-					logger.Warnf("Couldn't send message without reply to message, %s", err)
-				}
-			})
-			logger.Infof("Setting cron at %s, %s", k, err)
-		}
-	}
-
+	// set the cron jobs
+	ScheduleCronFromConfig(config, telegramBot, c)
 	go c.Start()
 
 	for update := range updates {
