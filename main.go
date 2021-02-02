@@ -54,7 +54,6 @@ func main() {
 
 	telegramBot.Debug = false
 
-
 	TelegramEventHandler(telegramBot, cfg)
 
 }

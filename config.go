@@ -34,7 +34,6 @@ func CreateConfig() {
 	}
 	fmt.Println("")
 
-
 	for true {
 		fmt.Println("Enter Telegram ChanID")
 		fmt.Println("a comma, for example: -432232xx")

@@ -7,9 +7,8 @@ import (
 	"strings"
 )
 
-
 /* GetCommandArgumentFromMessage splits the message into the command and the arguments which are to be
- passed to it */
+passed to it */
 func GetCommandArgumentFromMessage(telegramBot *tgbotapi.BotAPI, update tgbotapi.Update) (string, string, error) {
 	var command string
 	var arguments string

@@ -10,24 +10,23 @@ import (
 )
 
 type MessageHandlerArgs struct {
-	bot 	  *tgbotapi.BotAPI
-	update 	  tgbotapi.Update
+	bot       *tgbotapi.BotAPI
+	update    tgbotapi.Update
 	arguments string
-	config 	  *Config
+	config    *Config
 	cronMgr   *cron.Cron
 }
 
-
 func getChannel(h MessageHandlerArgs) (*ChannelConfig, error) {
 	val, ok := h.config.Channels[TelegramChannel(h.update.Message.Chat.ID)]
-	if ! ok {
+	if !ok {
 		return nil, errors.New("did not find channel id")
 	}
 	return &val, nil
 }
 
 /* OnPinMessageHandler retrieves the message which was quoted and then pins it */
-func OnPinMessageHandler(h MessageHandlerArgs){
+func OnPinMessageHandler(h MessageHandlerArgs) {
 	if h.update.Message.ReplyToMessage == nil {
 		// the message has no reply
 		msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "Soz, donno which message to pin. 😎")
@@ -50,9 +49,9 @@ func OnPinMessageHandler(h MessageHandlerArgs){
 }
 
 /* OnScheduleMessageHandler handles messages which aim at scheduling using Cron Syntax */
-func OnScheduleMessageHandler(h MessageHandlerArgs){
+func OnScheduleMessageHandler(h MessageHandlerArgs) {
 
-	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID,"")
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "")
 
 	arguments := strings.Split(h.arguments, ",")
 	if len(arguments) < 2 {
@@ -80,7 +79,6 @@ func OnScheduleMessageHandler(h MessageHandlerArgs){
 	logger.Info(val.Reminder[cronJob], h.config)
 	h.config.Write()
 
-
 	err = h.cronMgr.AddFunc(cronJob, func() {
 		logger.Infof("Triggering cronjob set at %s in %s", cronJob, h.update.Message.Chat.ID)
 		msgCron := tgbotapi.NewMessage(h.update.Message.Chat.ID, reminderMessage)
@@ -94,9 +92,8 @@ func OnScheduleMessageHandler(h MessageHandlerArgs){
 	if err != nil {
 		msg.Text = fmt.Sprintf("⏰ invalid cron. Can't set the cron job, %s", err)
 	} else {
-		msg.Text = fmt.Sprintf("⏰ Successfully set reminder for %s at %s", reminderMessage, cronJob )
+		msg.Text = fmt.Sprintf("⏰ Successfully set reminder for %s at %s", reminderMessage, cronJob)
 	}
-
 
 	_, err = h.bot.Send(msg)
 	if err != nil {
@@ -106,9 +103,9 @@ func OnScheduleMessageHandler(h MessageHandlerArgs){
 }
 
 /* OnUnScheduleMessageHandler handles messages which aim at unscheduling using Cron Syntax */
-func OnUnScheduleMessageHandler(h MessageHandlerArgs){
+func OnUnScheduleMessageHandler(h MessageHandlerArgs) {
 
-	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID,"")
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "")
 
 	cronJob := h.arguments
 
@@ -120,7 +117,7 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs){
 	}
 
 	_, ok := val.Reminder[cronJob]
-	if ! ok {
+	if !ok {
 		message := fmt.Sprintf("Failed to find cron job '<code>%s</code>' in the listing", cronJob)
 		logger.Warn(message)
 		msg.Text = message
@@ -143,7 +140,7 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs){
 	ScheduleCronFromConfig(h.config, h.bot, h.cronMgr)
 	go h.cronMgr.Start()
 
-	msgSuccess := tgbotapi.NewMessage(h.update.Message.Chat.ID,"CronJobs reloaded 🚀")
+	msgSuccess := tgbotapi.NewMessage(h.update.Message.Chat.ID, "CronJobs reloaded 🚀")
 	_, err = h.bot.Send(msgSuccess)
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
@@ -151,9 +148,9 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs){
 }
 
 /* OnListScheduleMessageHandler handles messages which aim at list scheduling using Cron Syntax */
-func OnListScheduleMessageHandler(h MessageHandlerArgs){
+func OnListScheduleMessageHandler(h MessageHandlerArgs) {
 
-	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID,"")
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "")
 
 	// -->
 	val, err := getChannel(h)
@@ -178,10 +175,8 @@ func OnListScheduleMessageHandler(h MessageHandlerArgs){
 	}
 }
 
-
-
 /* OnMeMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
-func OnMeMessageHandler(h MessageHandlerArgs){
+func OnMeMessageHandler(h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(
 		h.update.Message.Chat.ID,
 		fmt.Sprintf("_* %s %s_", h.update.Message.From.FirstName, h.arguments))
@@ -192,7 +187,6 @@ func OnMeMessageHandler(h MessageHandlerArgs){
 	}
 
 }
-
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
 func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
@@ -224,7 +218,7 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		return
 	}
 
-	var handler func (h MessageHandlerArgs)
+	var handler func(h MessageHandlerArgs)
 	switch command {
 	case "pin":
 		handler = OnPinMessageHandler

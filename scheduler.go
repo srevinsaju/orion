@@ -5,7 +5,7 @@ import (
 	"github.com/robfig/cron"
 )
 
-func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cron.Cron){
+func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cron.Cron) {
 	for chanId, chanInstance := range config.Channels {
 		chanIdInt := int64(chanId)
 		for k, v := range chanInstance.Reminder {

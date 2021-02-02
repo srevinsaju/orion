@@ -7,7 +7,6 @@ import (
 
 type TelegramChannel int64
 
-
 type Reminders struct {
 	When string `json:"when"`
 	What string `json:"what"`
@@ -17,15 +16,12 @@ type ChannelConfig struct {
 	Reminder map[string]Reminders `json:"reminder,omitempty"`
 }
 
-
 type Config struct {
 	TimeZone         string                            `json:"time_zone"`
 	Channels         map[TelegramChannel]ChannelConfig `json:"channels"`
 	TelegramApiToken string                            `json:"telegramApiToken"`
 	configPath       string
 }
-
-
 
 func (config *Config) Write() {
 	raw, err := json.MarshalIndent(config, "", "\t")
@@ -39,8 +35,3 @@ func (config *Config) Write() {
 		logger.Fatal("Failed to write configuration file to %s, %s", config.configPath, err)
 	}
 }
-
-
-
-
-
