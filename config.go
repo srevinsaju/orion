@@ -57,7 +57,7 @@ func CreateConfig() {
 
 	}
 
-	outputBytes, err := json.Marshal(cfg)
+	outputBytes, err := json.MarshalIndent(cfg, "", "\t")
 	err = ioutil.WriteFile("gofer.json", outputBytes, 0644)
 	if err != nil {
 		logger.Fatal(err)
