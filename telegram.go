@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/robfig/cron"
 	"strings"
+	"time"
 )
 
 type MessageHandlerArgs struct {
@@ -182,7 +183,11 @@ func TelegramEventHandler(telegramBot *tgbotapi.BotAPI, config *Config) {
 	}
 
 	// create the scheduler instance
-	c := cron.New()
+	location, err := time.LoadLocation(config.TimeZone)
+	if err != nil {
+		location = time.UTC
+	}
+	c := cron.NewWithLocation(location)
 
 
 	for chanId, chanInstance := range config.Channels {

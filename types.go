@@ -19,6 +19,7 @@ type ChannelConfig struct {
 
 
 type Config struct {
+	TimeZone         string                            `json:"time_zone"`
 	Channels         map[TelegramChannel]ChannelConfig `json:"channels"`
 	TelegramApiToken string                            `json:"telegramApiToken"`
 	configPath       string
