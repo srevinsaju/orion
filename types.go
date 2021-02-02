@@ -28,7 +28,7 @@ type Config struct {
 
 
 func (config *Config) Write() {
-	raw, err := json.Marshal(config)
+	raw, err := json.MarshalIndent(config, "", "\t")
 	if err != nil {
 		logger.Fatal("Failed to marshall JSON, %s", err)
 		return
