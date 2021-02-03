@@ -4,9 +4,8 @@ import (
 	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/robfig/cron"
+	"github.com/robfig/cron/v3"
 	"strings"
-	"time"
 )
 
 type MessageHandlerArgs struct {
@@ -53,17 +52,18 @@ func OnScheduleMessageHandler(h MessageHandlerArgs) {
 
 	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "")
 
-	arguments := strings.Split(h.arguments, ",")
+	arguments := strings.Split(h.arguments, "@")
 	if len(arguments) < 2 {
-		msg.Text = "Usage: cron job, reminder text"
+		msg.Text = "Usage: reminder text @ cron_expression"
 		_, err := h.bot.Send(msg)
 		if err != nil {
 			logger.Warnf("Couldn't send message without reply to message, %s", err)
 		}
 		return
 	}
-	cronJob := arguments[0]
-	reminderMessage := arguments[1]
+	reminderMessage := arguments[0]
+	cronJob := arguments[1]
+	cronJob = strings.Trim(cronJob, " ")
 
 	// -->
 	val, err := getChannel(h)
@@ -72,19 +72,14 @@ func OnScheduleMessageHandler(h MessageHandlerArgs) {
 		return
 	}
 
-	val.Reminder[cronJob] = Reminders{
-		When: cronJob,
-		What: reminderMessage,
-	}
-	logger.Info(val.Reminder[cronJob], h.config)
-	h.config.Write()
-
-	err = h.cronMgr.AddFunc(cronJob, func() {
-		logger.Infof("Triggering cronjob set at %s in %s", cronJob, h.update.Message.Chat.ID)
-		msgCron := tgbotapi.NewMessage(h.update.Message.Chat.ID, reminderMessage)
-		_, err_ := h.bot.Send(msgCron)
-		if err_ != nil {
-			logger.Warnf("Couldn't send message without reply to message, %s", err)
+	instanceId, err := h.cronMgr.AddFunc(
+		fmt.Sprintf("TZ=%s %s", val.TimeZone, cronJob),
+		func() {
+			logger.Infof("Triggering cronjob set at %s in %s", cronJob, h.update.Message.Chat.ID)
+			msgCron := tgbotapi.NewMessage(h.update.Message.Chat.ID, reminderMessage)
+			_, err_ := h.bot.Send(msgCron)
+			if err_ != nil {
+				logger.Warnf("Couldn't send message without reply to message, %s", err)
 		}
 	})
 	logger.Infof("Setting cron at %s, %s", cronJob, err)
@@ -93,6 +88,13 @@ func OnScheduleMessageHandler(h MessageHandlerArgs) {
 		msg.Text = fmt.Sprintf("⏰ invalid cron. Can't set the cron job, %s", err)
 	} else {
 		msg.Text = fmt.Sprintf("⏰ Successfully set reminder for %s at %s", reminderMessage, cronJob)
+		val.Reminder[cronJob] = Reminders{
+			When: cronJob,
+			What: reminderMessage,
+			instanceId: int(instanceId),
+		}
+		logger.Info(val.Reminder[cronJob], h.config)
+		h.config.Write()
 	}
 
 	_, err = h.bot.Send(msg)
@@ -107,7 +109,7 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs) {
 
 	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "")
 
-	cronJob := h.arguments
+	cronJob := strings.Trim(h.arguments, " ")
 
 	// -->
 	val, err := getChannel(h)
@@ -116,7 +118,7 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs) {
 		return
 	}
 
-	_, ok := val.Reminder[cronJob]
+	job, ok := val.Reminder[cronJob]
 	if !ok {
 		message := fmt.Sprintf("Failed to find cron job '<code>%s</code>' in the listing", cronJob)
 		logger.Warn(message)
@@ -126,6 +128,8 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs) {
 		delete(val.Reminder, cronJob)
 		logger.Debug("Updating configuration")
 		h.config.Write()
+		logger.Infof("Removing InstanceId[%s]", job.instanceId)
+		h.cronMgr.Remove(cron.EntryID(job.instanceId))
 
 		msg.Text = fmt.Sprintf("Removed reminder for <code>%s</code>. Updating cron jobs with new config", cronJob)
 	}
@@ -136,17 +140,6 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs) {
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
-
-	h.cronMgr.Stop()
-	// create the scheduler instance
-	location, err := time.LoadLocation(h.config.TimeZone)
-	if err != nil {
-		location = time.UTC
-	}
-
-	h.cronMgr = cron.NewWithLocation(location)
-	ScheduleCronFromConfig(h.config, h.bot, h.cronMgr)
-	go h.cronMgr.Start()
 
 	msgSuccess := tgbotapi.NewMessage(h.update.Message.Chat.ID, "CronJobs reloaded 🚀")
 	_, err = h.bot.Send(msgSuccess)
@@ -262,13 +255,7 @@ func TelegramEventHandler(telegramBot *tgbotapi.BotAPI, config *Config) {
 		return
 	}
 
-	// create the scheduler instance
-	location, err := time.LoadLocation(config.TimeZone)
-	if err != nil {
-		location = time.UTC
-	}
-	c := cron.NewWithLocation(location)
-
+	c := cron.New()
 	// set the cron jobs
 	ScheduleCronFromConfig(config, telegramBot, c)
 	go c.Start()

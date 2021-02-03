@@ -10,14 +10,15 @@ type TelegramChannel int64
 type Reminders struct {
 	When string `json:"when"`
 	What string `json:"what"`
+	instanceId int
 }
 
 type ChannelConfig struct {
-	Reminder map[string]Reminders `json:"reminder,omitempty"`
+	Reminder		map[string]Reminders `json:"reminder,omitempty"`
+	TimeZone        string               `json:"time_zone"`
 }
 
 type Config struct {
-	TimeZone         string                            `json:"time_zone"`
 	Channels         map[TelegramChannel]ChannelConfig `json:"channels"`
 	TelegramApiToken string                            `json:"telegramApiToken"`
 	configPath       string
