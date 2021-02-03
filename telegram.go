@@ -136,7 +136,15 @@ func OnUnScheduleMessageHandler(h MessageHandlerArgs) {
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
+
 	h.cronMgr.Stop()
+	// create the scheduler instance
+	location, err := time.LoadLocation(h.config.TimeZone)
+	if err != nil {
+		location = time.UTC
+	}
+
+	h.cronMgr = cron.NewWithLocation(location)
 	ScheduleCronFromConfig(h.config, h.bot, h.cronMgr)
 	go h.cronMgr.Start()
 
