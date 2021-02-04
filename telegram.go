@@ -60,9 +60,9 @@ func OnScheduleMessageHandler(h MessageHandlerArgs) {
 
 	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "")
 
-	arguments := strings.Split(h.arguments, "@")
+	arguments := strings.Split(h.arguments, "$")
 	if len(arguments) < 2 {
-		msg.Text = "Usage: reminder text @ cron_expression"
+		msg.Text = "Usage: reminder text $ cron_expression"
 		_, err := h.bot.Send(msg)
 		if err != nil {
 			logger.Warnf("Couldn't send message without reply to message, %s", err)
