@@ -17,8 +17,9 @@ type MessageHandlerArgs struct {
 }
 
 type TempChanAttr struct {
-	Pluses       int
-	MessageCount int
+	Pluses                int
+	MessageCount          int
+	LastMessageCountAsked int
 }
 
 var TempChanAttrs = map[TelegramChannel]*TempChanAttr{}
@@ -200,9 +201,16 @@ func OnPlusesMessageHandler(h MessageHandlerArgs) {
 func OnCountMessageHandler(h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(
 		h.update.Message.Chat.ID,
-		fmt.Sprintf("Messages so far: <b>%d</b>",
-			TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount))
+		fmt.Sprintf("Messages so far: <b>%d</b>\nMessages since last request: <b>%d</b>",
+			TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount,
+			TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount-TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].LastMessageCountAsked))
 	msg.ParseMode = "html"
+	TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].LastMessageCountAsked =
+		TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount
+	logger.Infof(
+		"Setting the last asked message count to [%s]",
+		TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].LastMessageCountAsked,
+	)
 	_, err := h.bot.Send(msg)
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
