@@ -16,6 +16,13 @@ type MessageHandlerArgs struct {
 	cronMgr   *cron.Cron
 }
 
+type TempChanAttr struct {
+	Pluses       int
+	MessageCount int
+}
+
+var TempChanAttrs = map[TelegramChannel]*TempChanAttr{}
+
 func getChannel(h MessageHandlerArgs) (*ChannelConfig, error) {
 	val, ok := h.config.Channels[TelegramChannel(h.update.Message.Chat.ID)]
 	if !ok {
@@ -80,8 +87,8 @@ func OnScheduleMessageHandler(h MessageHandlerArgs) {
 			_, err_ := h.bot.Send(msgCron)
 			if err_ != nil {
 				logger.Warnf("Couldn't send message without reply to message, %s", err)
-		}
-	})
+			}
+		})
 	logger.Infof("Setting cron at %s, %s", cronJob, err)
 
 	if err != nil {
@@ -89,8 +96,8 @@ func OnScheduleMessageHandler(h MessageHandlerArgs) {
 	} else {
 		msg.Text = fmt.Sprintf("⏰ Successfully set reminder for %s at %s", reminderMessage, cronJob)
 		val.Reminder[cronJob] = Reminders{
-			When: cronJob,
-			What: reminderMessage,
+			When:       cronJob,
+			What:       reminderMessage,
 			instanceId: int(instanceId),
 		}
 		logger.Info(val.Reminder[cronJob], h.config)
@@ -176,6 +183,33 @@ func OnListScheduleMessageHandler(h MessageHandlerArgs) {
 	}
 }
 
+/* OnPlusesMessageHandler handles messages which starts with /plus and returns the total number of pluses */
+func OnPlusesMessageHandler(h MessageHandlerArgs) {
+	msg := tgbotapi.NewMessage(
+		h.update.Message.Chat.ID,
+		fmt.Sprintf("Pluses so far: <b>%d</b>", TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses))
+	msg.ParseMode = "html"
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
+/* OnCountMessageHandler handles messages which starts with /count and returns the total number of messages */
+func OnCountMessageHandler(h MessageHandlerArgs) {
+	msg := tgbotapi.NewMessage(
+		h.update.Message.Chat.ID,
+		fmt.Sprintf("Messages so far: <b>%d</b>",
+			TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount))
+	msg.ParseMode = "html"
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
 /* OnMeMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
 func OnMeMessageHandler(h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(
@@ -204,7 +238,8 @@ func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
 /* TelegramOnMessageHandler function scans every message and selects only those messages which can be processed */
 func TelegramOnMessageHandler(h MessageHandlerArgs) {
 	// first check if the message is from a valid registered channel
-	if _, ok := h.config.Channels[TelegramChannel(h.update.Message.Chat.ID)]; !ok {
+	_, err := getChannel(h)
+	if err != nil {
 		logger.Infof("[TelegramBot] Received an event from unrecognized channel")
 		return
 	}
@@ -212,6 +247,15 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 	// return if the message is empty
 	if h.update.Message.Text == "" {
 		return
+	}
+
+	TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount += 1
+	count := strings.Count(h.update.Message.Text, "++")
+	TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses += count
+
+	if count > 0 {
+		logger.Infof("Pluses added %d", count)
+		logger.Infof("Number of pluses now, %d", TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses)
 	}
 
 	command, arguments, err := GetCommandArgumentFromMessage(h.bot, h.update)
@@ -231,6 +275,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		handler = OnUnScheduleMessageHandler
 	case "listscheduled":
 		handler = OnListScheduleMessageHandler
+	case "plus":
+		handler = OnPlusesMessageHandler
+	case "count":
+		handler = OnCountMessageHandler
 	default:
 		handler = OnMessageNotCommandMatchHandler
 	}
@@ -255,6 +303,14 @@ func TelegramEventHandler(telegramBot *tgbotapi.BotAPI, config *Config) {
 		return
 	}
 
+	// initialize the message counters
+	for k := range config.Channels {
+		TempChanAttrs[k] = &TempChanAttr{
+			Pluses:       config.ChanAttr[k].Pluses,
+			MessageCount: config.ChanAttr[k].MessageCount,
+		}
+	}
+
 	c := cron.New()
 	// set the cron jobs
 	ScheduleCronFromConfig(config, telegramBot, c)
@@ -276,4 +332,5 @@ func TelegramEventHandler(telegramBot *tgbotapi.BotAPI, config *Config) {
 		// call the handler
 		TelegramOnMessageHandler(*handlerArgs)
 	}
+
 }

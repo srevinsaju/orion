@@ -8,17 +8,18 @@ import (
 type TelegramChannel int64
 
 type Reminders struct {
-	When string `json:"when"`
-	What string `json:"what"`
+	When       string `json:"when"`
+	What       string `json:"what"`
 	instanceId int
 }
 
 type ChannelConfig struct {
-	Reminder		map[string]Reminders `json:"reminder,omitempty"`
-	TimeZone        string               `json:"time_zone"`
+	Reminder map[string]Reminders `json:"reminder,omitempty"`
+	TimeZone string               `json:"time_zone"`
 }
 
 type Config struct {
+	ChanAttr         map[TelegramChannel]TempChanAttr  `json:"chan_attr"`
 	Channels         map[TelegramChannel]ChannelConfig `json:"channels"`
 	TelegramApiToken string                            `json:"telegramApiToken"`
 	configPath       string

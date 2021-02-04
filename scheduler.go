@@ -20,7 +20,7 @@ func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cro
 					if err_ != nil {
 						logger.Warnf("Couldn't send message without reply to message, %s", err_)
 					}
-			})
+				})
 			if err != nil {
 				g := &v
 				g.instanceId = int(instanceId)
