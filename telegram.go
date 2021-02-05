@@ -184,6 +184,11 @@ func OnListScheduleMessageHandler(h MessageHandlerArgs) {
 	}
 }
 
+/* OnLatexMessageHandler handles messages with /tex and then starts a goroutine which would send the document*/
+func OnLatexMessageHandler(h MessageHandlerArgs) {
+	go LatexTelegramHandler(h)
+}
+
 /* OnPlusesMessageHandler handles messages which starts with /plus and returns the total number of pluses */
 func OnPlusesMessageHandler(h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(
@@ -215,7 +220,6 @@ func OnCountMessageHandler(h MessageHandlerArgs) {
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
-
 }
 
 /* OnMeMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
@@ -239,7 +243,6 @@ func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
 	_, err := h.bot.Send(msg)
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
-
 	}
 }
 
@@ -285,6 +288,8 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		handler = OnListScheduleMessageHandler
 	case "plus":
 		handler = OnPlusesMessageHandler
+	case "tex":
+		handler = OnLatexMessageHandler
 	case "count":
 		handler = OnCountMessageHandler
 	default:
