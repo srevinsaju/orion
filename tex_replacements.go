@@ -1,7 +1,7 @@
 package main
 
 var TexTemplate = `\documentclass{article}
-\usepackage{pagecolor}
+\usepackage{mhchem}
 \begin{document}
 
 $%s$
