@@ -29,7 +29,7 @@ var TexCleaned = ""
 
 
 func SendErrorMessage(err error, h MessageHandlerArgs) {
-	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, err.Error())
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, err.Error()[:4000])
 	_, errSend := h.bot.Send(msg)
 	logger.Warnf("Err: %s", err)
 	if errSend != nil {
