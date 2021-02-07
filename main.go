@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/google/go-github/github"
 	"github.com/withmandala/go-log"
+	"golang.org/x/oauth2"
 	"os"
 	"os/signal"
 	"syscall"
@@ -67,6 +70,15 @@ func main() {
 	// set the config path to the command name
 	cfg.configPath = command
 
+	// initialize the github client
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: cfg.GitHubApiToken},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+
+	githubClient := github.NewClient(tc)
+
 	telegramBotToken := cfg.TelegramApiToken
 
 	go gracefulShutdown(cfg)
@@ -80,7 +92,7 @@ func main() {
 
 	telegramBot.Debug = false
 
-	TelegramEventHandler(telegramBot, cfg)
+	TelegramEventHandler(telegramBot, githubClient, ctx, cfg)
 
 	<-forever
 

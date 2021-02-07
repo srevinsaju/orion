@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/google/go-github/github"
 	"github.com/robfig/cron/v3"
 	"strings"
 )
@@ -14,6 +16,8 @@ type MessageHandlerArgs struct {
 	arguments string
 	config    *Config
 	cronMgr   *cron.Cron
+	gh        *github.Client
+	ghCtx     context.Context
 }
 
 type TempChanAttr struct {
@@ -30,6 +34,45 @@ func getChannel(h MessageHandlerArgs) (*ChannelConfig, error) {
 		return nil, errors.New("did not find channel id")
 	}
 	return &val, nil
+}
+
+/* OnReportMessageHandler retrieves the message which was quoted and then pins it */
+func OnReportMessageHandler(h MessageHandlerArgs) {
+	if h.update.Message.ReplyToMessage == nil {
+		// the message has no reply
+		msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "Soz, donno which message to report. Sed. 😎")
+		msg.ReplyToMessageID = h.update.Message.MessageID
+		_, err := h.bot.Send(msg)
+		if err != nil {
+			logger.Warnf("Couldn't send message without reply to message, %s", err)
+
+		}
+		return
+	}
+
+	body := fmt.Sprintf(`
+	The following answer was a given by sugaroid, and is considered as a bug. Please 
+	manually review this issue, and close it if it looks unnecessary.
+
+	user: %s 
+    sugaroid: %s`,
+		h.update.Message.CommandArguments(), h.update.Message.ReplyToMessage.Text,
+	)
+	title := fmt.Sprintf("[+orion] Bug '%s'", h.update.Message.CommandArguments())
+	labels := []string{"orion"}
+
+	issue, _, err := h.gh.Issues.Create(h.ghCtx, "sugaroidbot", "sugaroid", &github.IssueRequest{
+		Title:  &title,
+		Body:   &body,
+		Labels: &labels,
+	})
+	if err != nil {
+		SendErrorMessage(err, h)
+		return
+	} else {
+		SendMessage(fmt.Sprintf("Created issue at %s", *issue.URL), h)
+	}
+
 }
 
 /* OnPinMessageHandler retrieves the message which was quoted and then pins it */
@@ -292,6 +335,8 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		handler = OnLatexMessageHandler
 	case "count":
 		handler = OnCountMessageHandler
+	case "report":
+		handler = OnReportMessageHandler
 	default:
 		handler = OnMessageNotCommandMatchHandler
 	}
@@ -304,7 +349,8 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 }
 
 /* TelegramEventHandler function is a long running function which scans all the incoming events */
-func TelegramEventHandler(telegramBot *tgbotapi.BotAPI, config *Config) {
+func TelegramEventHandler(
+	telegramBot *tgbotapi.BotAPI, ghClient *github.Client, ghCtx context.Context, config *Config) {
 
 	logger.Infof("[TelegramBot] Authorized on account %s", telegramBot.Self.UserName)
 	u := tgbotapi.NewUpdate(0)
@@ -340,6 +386,8 @@ func TelegramEventHandler(telegramBot *tgbotapi.BotAPI, config *Config) {
 			arguments: "",
 			config:    config,
 			cronMgr:   c,
+			gh:        ghClient,
+			ghCtx:     ghCtx,
 		}
 
 		// call the handler

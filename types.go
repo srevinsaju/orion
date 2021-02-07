@@ -22,6 +22,7 @@ type Config struct {
 	ChanAttr         map[TelegramChannel]TempChanAttr  `json:"chan_attr"`
 	Channels         map[TelegramChannel]ChannelConfig `json:"channels"`
 	TelegramApiToken string                            `json:"telegramApiToken"`
+	GitHubApiToken   string                            `json:"github_api_token"`
 	configPath       string
 }
 
