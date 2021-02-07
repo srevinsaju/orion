@@ -49,6 +49,11 @@ func OnReportMessageHandler(h MessageHandlerArgs) {
 		}
 		return
 	}
+	if strings.Trim(h.update.Message.CommandArguments(), " ") == "" {
+		// no message along with the command
+		SendMessage("Usage: /report <the question you asked to sugaroid>", h)
+		return
+	}
 
 	body := fmt.Sprintf(`
 	The following answer was a given by sugaroid, and is considered as a bug. Please 
