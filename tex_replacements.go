@@ -9,7 +9,6 @@ $%s$
 \pagenumbering{gobble}
 \end{document}`
 
-
 var TexReplacements = map[string]string{
 	"Γ": " \\Gamma ",
 	"Δ": " \\Delta ",

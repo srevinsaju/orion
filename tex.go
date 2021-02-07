@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -12,31 +11,37 @@ import (
 )
 
 type Payload struct {
-	Code string `json:"code"`
-	Format string `json:"format"`
-	Quality int `json:"quality"`
-	Density int `json:"density"`
+	Code    string `json:"code"`
+	Format  string `json:"format"`
+	Quality int    `json:"quality"`
+	Density int    `json:"density"`
 }
 
 type PostResponse struct {
-	Status string `json:"status"`
+	Status   string `json:"status"`
 	Filename string `json:"filename"`
-	Log string `json:"log,omitempty"`
+	Log      string `json:"log,omitempty"`
 }
 
 var LatexServerURL = "http://rtex.probablyaweb.site/api/v2"
 var TexCleaned = ""
 
+func SendMessage(message string, h MessageHandlerArgs) {
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, message)
+	_, errSend := h.bot.Send(msg)
+	if errSend != nil {
+		logger.Warnf("Couldn't send message to Telegram chat, %s", errSend)
+	}
+}
 
 func SendErrorMessage(err error, h MessageHandlerArgs) {
-	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, err.Error()[:4000])
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, err.Error())
 	_, errSend := h.bot.Send(msg)
 	logger.Warnf("Err: %s", err)
 	if errSend != nil {
 		logger.Warnf("Couldn't send message to Telegram chat, %s", errSend)
 	}
 }
-
 
 func LatexTelegramHandler(h MessageHandlerArgs) {
 	texUrl, err := GetLatexImage(h.arguments)
@@ -61,21 +66,18 @@ func LatexTelegramHandler(h MessageHandlerArgs) {
 	texBytes := tgbotapi.FileBytes{Name: "image.jpg", Bytes: content}
 	msg := tgbotapi.NewPhotoUpload(h.update.Message.Chat.ID, texBytes)
 
-
 	_, errSend := h.bot.Send(msg)
 	if errSend != nil {
 		logger.Warnf("Couldn't send message to Telegram chat, %s", errSend)
 	}
 }
 
-
-
 func GetLatexImage(arguments string) (string, error) {
 	var payloadJson []byte
 
 	payload := Payload{
-		Code: fmt.Sprintf(TexTemplate, arguments),
-		Format: "png",
+		Code:    fmt.Sprintf(TexTemplate, arguments),
+		Format:  "png",
 		Quality: 80,
 		Density: 300,
 	}
@@ -97,7 +99,7 @@ func GetLatexImage(arguments string) (string, error) {
 	rawPostResponse, err := ioutil.ReadAll(r.Body)
 	var postResponse PostResponse
 	err = json.Unmarshal(rawPostResponse, &postResponse)
-	if err != nil  {
+	if err != nil {
 		return "", err
 	}
 	if postResponse.Status != "success" {
