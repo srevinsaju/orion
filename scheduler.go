@@ -25,7 +25,7 @@ func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cro
 				g := &v
 				g.instanceId = int(instanceId)
 			}
-			logger.Infof("Setting cron at %s, %s with instanceId[%s]", k, err, instanceId)
+			logger.Infof("Setting cron at %s, %s with instanceId[%s][%s]", k, err, instanceId, v.What)
 		}
 	}
 }
