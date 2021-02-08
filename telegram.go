@@ -27,8 +27,6 @@ type TempChanAttr struct {
 
 var TempChanAttrs = map[TelegramChannel]*TempChanAttr{}
 
-
-
 /* GetChannel gets the channel from the channel configuration. */
 func GetChannel(h MessageHandlerArgs) (*ChannelConfig, error) {
 	val, ok := h.config.Channels[TelegramChannel(h.update.Message.Chat.ID)]
@@ -37,7 +35,6 @@ func GetChannel(h MessageHandlerArgs) (*ChannelConfig, error) {
 	}
 	return &val, nil
 }
-
 
 /* TelegramOnMessageHandler function scans every message and selects only those messages which can be processed */
 func TelegramOnMessageHandler(h MessageHandlerArgs) {
@@ -53,24 +50,29 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		return
 	}
 
-	TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount += 1
-	count := strings.Count(h.update.Message.Text, "++")
-	TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses += count
+	// add the number of pluses to the Pluses variable
+	go func() {
+		TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].MessageCount += 1
+		count := strings.Count(h.update.Message.Text, "++")
+		TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses += count
+		if count > 0 {
+			logger.Infof("Pluses added %d", count)
+			logger.Infof("Number of pluses now, %d", TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses)
+		}
+	}()
 
-	if count > 0 {
-		logger.Infof("Pluses added %d", count)
-		logger.Infof("Number of pluses now, %d", TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses)
-	}
-
+	// start another go routine for handling messages with sed
 	if strings.Contains(h.update.Message.Text, "sed") || strings.Trim(h.update.Message.Text, " ") == "sed" {
-		OnSedMessageHandler(h)
+		go OnSedMessageHandler(h)
 	}
 
+	// get the command and arguments
 	command, arguments, err := GetCommandArgumentFromMessage(h.bot, h.update)
 	if err != nil {
 		return
 	}
 
+	// create a handler variable which can be later run as goroutine
 	var handler func(h MessageHandlerArgs)
 	switch command {
 	case "pin":
@@ -101,7 +103,6 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 	h.arguments = arguments
 	go handler(h)
 }
-
 
 /* TelegramEventHandler function is a long running function which scans all the incoming events */
 func TelegramEventHandler(

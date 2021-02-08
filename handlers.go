@@ -25,7 +25,6 @@ var SedResponses = []string{
 	"super sed.",
 }
 
-
 /* OnReportMessageHandler retrieves the message which was quoted and then pins it */
 func OnReportMessageHandler(h MessageHandlerArgs) {
 	if h.update.Message.ReplyToMessage == nil {
