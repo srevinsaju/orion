@@ -36,6 +36,9 @@ func SendMessage(message string, h MessageHandlerArgs) {
 
 func SendErrorMessage(err error, h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, err.Error())
+	if len(err.Error()) > 200 {
+		msg.Text = "Sed, could do that!"
+	}
 	_, errSend := h.bot.Send(msg)
 	logger.Warnf("Err: %s", err)
 	if errSend != nil {
