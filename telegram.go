@@ -7,7 +7,9 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/google/go-github/github"
 	"github.com/robfig/cron/v3"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 type MessageHandlerArgs struct {
@@ -27,6 +29,21 @@ type TempChanAttr struct {
 }
 
 var TempChanAttrs = map[TelegramChannel]*TempChanAttr{}
+
+var RandomSource = rand.NewSource(time.Now().Unix())
+var Random = rand.New(RandomSource)
+
+var SedResponses = []string{
+	"So sed.",
+	"sed sed.",
+	"sed indeed.",
+	"sed.",
+	"sed tbh.",
+	"sed, but idk.",
+	"sed, but ok.",
+	"sed sed sed",
+	"super sed.",
+}
 
 func getChannel(h MessageHandlerArgs) (*ChannelConfig, error) {
 	val, ok := h.config.Channels[TelegramChannel(h.update.Message.Chat.ID)]
@@ -283,6 +300,34 @@ func OnMeMessageHandler(h MessageHandlerArgs) {
 
 }
 
+/* OnSedMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
+func OnSedMessageHandler(h MessageHandlerArgs) {
+	if Random.Intn(2) != 1 {
+		return
+	}
+	if len(h.update.Message.Text) > 20 {
+		// its a long message. No need to be soo sed for that
+		return
+	}
+
+	userMsg := strings.Trim(strings.ToLower(h.update.Message.Text), " ")
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "")
+	if strings.Contains(userMsg, "indeed") {
+		msg.Text = "Very sed indeed."
+	} else if userMsg == "sed" {
+		msg.Text = "Very sed."
+	} else {
+		msg.Text = SedResponses[Random.Intn(len(SedResponses))]
+	}
+	msg.ReplyToMessageID = h.update.Message.MessageID
+
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
 func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(
@@ -315,6 +360,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 	if count > 0 {
 		logger.Infof("Pluses added %d", count)
 		logger.Infof("Number of pluses now, %d", TempChanAttrs[TelegramChannel(h.update.Message.Chat.ID)].Pluses)
+	}
+
+	if strings.Contains(h.update.Message.Text, "sed") || strings.Trim(h.update.Message.Text, " ") == "sed" {
+		OnSedMessageHandler(h)
 	}
 
 	command, arguments, err := GetCommandArgumentFromMessage(h.bot, h.update)
