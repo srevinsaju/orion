@@ -15,7 +15,7 @@ func CreateConfig() {
 
 	var inputBuf string
 
-	// getChannel Telegram Api Token from @BotFather
+	// GetChannel Telegram Api Token from @BotFather
 	fmt.Print("Enter Telegram API Token: ")
 	_, err := fmt.Scanln(&inputBuf)
 	if err != nil {
@@ -25,7 +25,7 @@ func CreateConfig() {
 	fmt.Println("")
 	cfg.TelegramApiToken = inputBuf
 
-	// getChannel DiscordApiToken from Discord Application portal
+	// GetChannel DiscordApiToken from Discord Application portal
 	fmt.Print("Enter Discord API Token: ")
 	_, err = fmt.Scanln(&inputBuf)
 	if err != nil {

@@ -33,7 +33,7 @@ func gracefulShutdown(config *Config) {
 }
 
 func main() {
-	// getChannel last command
+	// GetChannel last command
 
 	command := os.Args[len(os.Args)-1]
 	if command == "create" {
