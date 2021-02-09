@@ -310,3 +310,14 @@ func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
 }
+
+/* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
+func OnIdMessageHandler(h MessageHandlerArgs) {
+	msg := tgbotapi.NewMessage(
+		h.update.Message.Chat.ID, fmt.Sprintf("Id: %d", h.update.Message.Chat.ID))
+	msg.ReplyToMessageID = h.update.Message.MessageID
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+}

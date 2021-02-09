@@ -94,6 +94,8 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		handler = OnCountMessageHandler
 	case "report":
 		handler = OnReportMessageHandler
+	case "id":
+		handler = OnIdMessageHandler
 	default:
 		handler = OnMessageNotCommandMatchHandler
 	}
