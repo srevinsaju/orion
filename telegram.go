@@ -67,6 +67,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		go OnSedMessageHandler(h)
 	}
 
+	if strings.Contains(messageTrimmedToLower, "😌😌😌") {
+		go OnRelievedMessageHandler(h)
+	}
+
 	// get the command and arguments
 	command, arguments, err := GetCommandArgumentFromMessage(h.bot, h.update)
 	if err != nil {

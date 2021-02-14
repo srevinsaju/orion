@@ -300,6 +300,25 @@ func OnSedMessageHandler(h MessageHandlerArgs) {
 
 }
 
+/* OnRelievedMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
+func OnRelievedMessageHandler(h MessageHandlerArgs) {
+	if Random.Intn(2) != 1 {
+		return
+	}
+	if len(h.update.Message.Text) > 20 {
+		// its a long message. No need to be soo sed for that
+		return
+	}
+
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "😌😌😌")
+
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
 func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(
