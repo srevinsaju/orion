@@ -23,6 +23,8 @@ var SedResponses = []string{
 	"sed, but ok.",
 	"sed sed sed",
 	"super sed.",
+	"u deserve it 😈.",
+	"issok... keep going...",
 }
 
 /* OnReportMessageHandler retrieves the message which was quoted and then pins it */
