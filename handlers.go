@@ -337,7 +337,7 @@ func OnSunnyMessageHandler(h MessageHandlerArgs) {
 		return
 	}
 
-	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, SunnyResponses[Random.Intn(1)])
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, SunnyResponses[Random.Intn(len(SunnyResponses))])
 
 	_, err := h.bot.Send(msg)
 	if err != nil {
