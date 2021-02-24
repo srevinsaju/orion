@@ -324,7 +324,7 @@ func OnRelievedMessageHandler(h MessageHandlerArgs) {
 
 /* OnSunnyMessageHandler handles messages which starts with 🌞🌞🌞 */
 func OnSunnyMessageHandler(h MessageHandlerArgs) {
-	if Random.Intn(5) != 1 {
+	if Random.Intn(3) != 1 {
 		return
 	}
 	if len(h.update.Message.Text) > 20 {
