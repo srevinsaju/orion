@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/google/go-github/github"
-	"github.com/robfig/cron/v3"
 	"math/rand"
 	"strings"
 	"time"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/google/go-github/github"
+	"github.com/robfig/cron/v3"
 )
 
 var RandomSource = rand.NewSource(time.Now().Unix())
@@ -313,6 +314,25 @@ func OnRelievedMessageHandler(h MessageHandlerArgs) {
 	}
 
 	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "😌😌😌")
+
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
+/* OnSunnyMessageHandler handles messages which starts with 🌞🌞🌞 */
+func OnSunnyMessageHandler(h MessageHandlerArgs) {
+	if Random.Intn(5) != 1 {
+		return
+	}
+	if len(h.update.Message.Text) > 20 {
+		// its a long message. No need to be soo sed for that
+		return
+	}
+
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "🌞🌞🌞")
 
 	_, err := h.bot.Send(msg)
 	if err != nil {
