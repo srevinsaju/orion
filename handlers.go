@@ -14,6 +14,11 @@ import (
 var RandomSource = rand.NewSource(time.Now().Unix())
 var Random = rand.New(RandomSource)
 
+var SunnyResponses = []string{
+	"🌞🌞🌞",
+	"😐😐😐",
+}
+
 var SedResponses = []string{
 	"So sed.",
 	"sed sed.",
@@ -332,7 +337,7 @@ func OnSunnyMessageHandler(h MessageHandlerArgs) {
 		return
 	}
 
-	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "🌞🌞🌞")
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, SunnyResponses[Random.Intn(1)])
 
 	_, err := h.bot.Send(msg)
 	if err != nil {
