@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"errors"
+	"strings"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/google/go-github/github"
 	"github.com/robfig/cron/v3"
-	"strings"
 )
 
 type MessageHandlerArgs struct {
@@ -69,6 +70,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 
 	if strings.Contains(messageTrimmedToLower, "😌😌😌") {
 		go OnRelievedMessageHandler(h)
+	}
+
+	if strings.Contains(messageTrimmedToLower, "🌞🌞🌞") {
+		go OnSunnyMessageHandler(h)
 	}
 
 	// get the command and arguments
