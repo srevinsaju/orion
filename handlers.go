@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-
+	"mvdan.cc/xurls"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/google/go-github/github"
 	"github.com/robfig/cron/v3"
@@ -90,6 +90,18 @@ func OnPinMessageHandler(h MessageHandlerArgs) {
 		}
 		return
 	}
+
+	if strings.Contains(h.update.Message.ReplyToMessage.Text, "instagram.com") || strings.Contains(h.update.Message.ReplyToMessage.Text, "twitter.com") {
+		msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "Soz, I will not pin anything dangerous for y'all 😎")
+		msg.ReplyToMessageID = h.update.Message.MessageID
+		_, err := h.bot.Send(msg)
+		if err != nil {
+			logger.Warnf("Couldn't send message without reply to message, %s", err)
+
+		}
+		return
+	}
+
 	_, err := h.bot.PinChatMessage(tgbotapi.PinChatMessageConfig{
 		ChatID:              h.update.Message.ReplyToMessage.Chat.ID,
 		MessageID:           h.update.Message.ReplyToMessage.MessageID,
@@ -280,7 +292,7 @@ func OnMeMessageHandler(h MessageHandlerArgs) {
 
 }
 
-/* OnSedMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
+/* OnSedMessageHandler handles messages which contains sed and helps to make the scenario more sed */
 func OnSedMessageHandler(h MessageHandlerArgs) {
 	if Random.Intn(2) != 1 {
 		return
@@ -307,6 +319,48 @@ func OnSedMessageHandler(h MessageHandlerArgs) {
 	}
 
 }
+
+/* OnTwitterMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
+func OnTwitterMessageHandler(h MessageHandlerArgs) {
+	oldLinks := xurls.Relaxed.FindAllString(h.update.Message.Text, -1)
+
+	var newLinks []string
+	for _ = range oldLinks {
+		newLinks = append(newLinks, strings.Replace(h.update.Message.Text, "twitter.com", "nitter.nixnet.services", -1))
+	}
+	msg := tgbotapi.NewMessage(
+		h.update.Message.Chat.ID,
+		fmt.Sprintf("Use the <b>privacy friendly</b> alternative to Instagram: 🐦 <i>Nitter</i>\n%s",
+			strings.Join(newLinks, "\n")))
+	msg.ParseMode = "html"
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
+
+/* OnInstagramMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
+func OnInstagramMessageHandler(h MessageHandlerArgs) {
+	oldLinks := xurls.Relaxed.FindAllString(h.update.Message.Text, -1)
+
+	var newLinks []string
+	for _ = range oldLinks {
+		newLinks = append(newLinks, strings.Replace(h.update.Message.Text, "instagram.com", "bibliogram.nixnet.services/u", -1))
+	}
+    msg := tgbotapi.NewMessage(
+    	h.update.Message.Chat.ID,
+    	fmt.Sprintf("Use the <b>privacy friendly</b> alternative to Instagram: 📷 <i>Bibliogram</i>\n%s",
+    		strings.Join(newLinks, "\n")))
+	msg.ParseMode = "html"
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
 
 /* OnRelievedMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
 func OnRelievedMessageHandler(h MessageHandlerArgs) {

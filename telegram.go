@@ -76,6 +76,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		go OnSunnyMessageHandler(h)
 	}
 
+	if strings.Contains(messageTrimmedToLower, "twitter.com") {
+		go OnTwitterMessageHandler(h)
+	}
+
 	// get the command and arguments
 	command, arguments, err := GetCommandArgumentFromMessage(h.bot, h.update)
 	if err != nil {
