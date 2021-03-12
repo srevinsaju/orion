@@ -448,6 +448,9 @@ func OnHaikuMessageHandler(h MessageHandlerArgs) {
 		if len(trimmedWord) == 1 && ! strings.Contains("aeiou", trimmedWord) {
 			continue
 		}
+		if strings.Count(strings.ToLower(h.update.Message.Text), strings.ToLower(trimmedWord)) > 5 {
+			continue
+		}
 		wordsBytes := []byte(trimmedWord)
 		count += syllables.CountSyllables(wordsBytes)
 		haiku[line] = append(haiku[line], trimmedWord)
