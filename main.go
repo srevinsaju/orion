@@ -35,6 +35,9 @@ func gracefulShutdown(config *Config) {
 func main() {
 	// GetChannel last command
 
+	if os.Getenv("ORION_DEBUG") == "1" {
+		logger = logger.WithDebug()
+	}
 	command := os.Args[len(os.Args)-1]
 	if command == "create" {
 		CreateConfig()
