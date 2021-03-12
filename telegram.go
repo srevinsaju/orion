@@ -62,6 +62,8 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		}
 	}()
 
+	go OnHaikuMessageHandler(h)
+
 	// start another go routine for handling messages with sed
 	messageTrimmedToLower := strings.Trim(strings.ToLower(h.update.Message.Text), " ")
 	if strings.Contains(messageTrimmedToLower, "sed") {

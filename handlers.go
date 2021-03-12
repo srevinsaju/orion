@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/srevinsaju/orion/internal/discord"
 	"math/rand"
 	"strings"
 	"time"
 	"mvdan.cc/xurls"
+	"github.com/ernestas-poskus/syllables"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/google/go-github/github"
 	"github.com/robfig/cron/v3"
@@ -420,4 +422,83 @@ func OnIdMessageHandler(h MessageHandlerArgs) {
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
+}
+
+/* OnHaikuMessageHandler matches those messages which have no associated commands with them */
+func OnHaikuMessageHandler(h MessageHandlerArgs) {
+	if len(h.update.Message.Text) < 10 {
+		return
+	}
+
+	var count int
+	words := strings.Split(strings.Replace(h.update.Message.Text, "\n", " ", -1), " ")
+	haiku := map[int][]string{
+		0: {},
+		1: {},
+		2: {},
+	}
+	var line = 0
+	for i := range words {
+		logger.Warn(words[i])
+
+		trimmedWord := strings.Trim(words[i], " ")
+		if trimmedWord == "" {
+			continue
+		}
+		wordsBytes := []byte(trimmedWord)
+		count += syllables.CountSyllables(wordsBytes)
+		haiku[line] = append(haiku[line], trimmedWord)
+		if line == 0 && count == 5 {
+			line = 1
+		} else if line == 1 && count == 12 {
+			line = 2
+		} else if line == 2 && count == 17 {
+			line = 3
+		} else if line == 3 {
+			logger.Warnf("Reached line 3 with count=%d", count)
+			return
+		}
+	}
+	logger.Info("haiku syllabi count %d", count)
+	if count != 17 {
+		return
+	}
+
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "💝")
+	msg.ReplyToMessageID = h.update.Message.MessageID
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+	val, err := GetChannel(h)
+	if err != nil {
+		logger.Warnf("Failed to GetChannel channel configuration, %s", h.update.Message.Chat.ID)
+		return
+	}
+	if val.DiscordHaikuWebhook == "" {
+		return
+	}
+	err = discord.SendWebhook(val.DiscordHaikuWebhook, discord.WebhookParams{
+		Username:  "Orion",
+		AvatarURL: "https://srevinsaju.me/img/giraffoidlitebot-128.jpg",
+		Embeds:    []*discord.MessageEmbed{{
+			Title:       "Haiku",
+			Description: fmt.Sprintf(
+				"%s\n%s\n%s",
+				strings.Join(haiku[0], " "),
+				strings.Join(haiku[1], " "),
+				strings.Join(haiku[2], " "),
+			),
+			Color:       0xe1a75b,
+			Footer:      &discord.MessageEmbedFooter{
+				Text:         fmt.Sprintf("~ %s %s, on %s", h.update.Message.From.FirstName, h.update.Message.From.LastName, h.update.Message.Time().UTC()),
+			},
+
+		}},
+	})
+	if err != nil {
+		logger.Warn(err)
+	}
+
 }

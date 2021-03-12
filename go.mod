@@ -3,6 +3,7 @@ module github.com/srevinsaju/orion
 go 1.15
 
 require (
+	github.com/ernestas-poskus/syllables v0.0.0-20150221071820-85c975ef4957
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
