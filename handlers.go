@@ -330,7 +330,7 @@ func OnTwitterMessageHandler(h MessageHandlerArgs) {
 	}
 	msg := tgbotapi.NewMessage(
 		h.update.Message.Chat.ID,
-		fmt.Sprintf("Use the <b>privacy friendly</b> alternative to Instagram: 🐦 <i>Nitter</i>\n%s",
+		fmt.Sprintf("Use the <b>privacy friendly</b> alternative to Twitter: 🐦 <i>Nitter</i>\n%s",
 			strings.Join(newLinks, "\n")))
 	msg.ParseMode = "html"
 	_, err := h.bot.Send(msg)
