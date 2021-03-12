@@ -327,7 +327,7 @@ func OnTwitterMessageHandler(h MessageHandlerArgs) {
 	oldLinks := xurls.Relaxed.FindAllString(h.update.Message.Text, -1)
 
 	var newLinks []string
-	for _ = range oldLinks {
+	for range oldLinks {
 		newLinks = append(newLinks, strings.Replace(h.update.Message.Text, "twitter.com", "nitter.nixnet.services", -1))
 	}
 	msg := tgbotapi.NewMessage(
@@ -348,7 +348,7 @@ func OnInstagramMessageHandler(h MessageHandlerArgs) {
 	oldLinks := xurls.Relaxed.FindAllString(h.update.Message.Text, -1)
 
 	var newLinks []string
-	for _ = range oldLinks {
+	for range oldLinks {
 		newLinks = append(newLinks, strings.Replace(h.update.Message.Text, "instagram.com", "bibliogram.nixnet.services/u", -1))
 	}
     msg := tgbotapi.NewMessage(
