@@ -439,7 +439,7 @@ func OnHaikuMessageHandler(h MessageHandlerArgs) {
 	}
 	var line = 0
 	for i := range words {
-		logger.Warn(words[i])
+		logger.Debugf("[haiku] %d=%s", i, words[i])
 
 		trimmedWord := strings.Trim(words[i], " ")
 		if trimmedWord == "" {
@@ -455,11 +455,11 @@ func OnHaikuMessageHandler(h MessageHandlerArgs) {
 		} else if line == 2 && count == 17 {
 			line = 3
 		} else if line == 3 {
-			logger.Warnf("Reached line 3 with count=%d", count)
+			logger.Debugf("Reached line 3 with count=%d", count)
 			return
 		}
 	}
-	logger.Info("haiku syllabi count %d", count)
+	logger.Debugf("haiku syllabi count %d", count)
 	if count != 17 {
 		return
 	}
