@@ -487,7 +487,7 @@ func OnHaikuMessageHandler(h MessageHandlerArgs) {
 	}
 	err = discord.SendWebhook(val.DiscordHaikuWebhook, discord.WebhookParams{
 		Username:  "Orion",
-		AvatarURL: "https://srevinsaju.me/img/giraffoidlitebot-128.jpg",
+		AvatarURL: "https://srev.in/img/giraffoidlitebot-128.jpg",
 		Embeds:    []*discord.MessageEmbed{{
 			Title:       "Haiku",
 			Description: fmt.Sprintf(
