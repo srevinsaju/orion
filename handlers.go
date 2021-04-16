@@ -425,13 +425,21 @@ func OnIdMessageHandler(h MessageHandlerArgs) {
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
 func On8BallMessageHandler(h MessageHandlerArgs) {
-	msg := tgbotapi.NewMessage(
-		h.update.Message.Chat.ID, Shake(h.update.Message.CommandArguments()))
+	var msg tgbotapi.MessageConfig
+
+	if strings.Contains(h.update.Message.Text, ".ball") {
+		msg = tgbotapi.NewMessage(
+			h.update.Message.Chat.ID, Shake(h.update.Message.CommandArguments()))
+	} else {
+		msg = tgbotapi.NewMessage(
+			h.update.Message.Chat.ID, Shake(h.update.Message.Text))
+	}
 	msg.ReplyToMessageID = h.update.Message.MessageID
 	_, err := h.bot.Send(msg)
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
+
 }
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
