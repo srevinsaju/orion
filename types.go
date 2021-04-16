@@ -14,9 +14,9 @@ type Reminders struct {
 }
 
 type ChannelConfig struct {
-	Reminder map[string]Reminders `json:"reminder,omitempty"`
-	TimeZone string               `json:"time_zone"`
-	DiscordHaikuWebhook string `json:"discord_haiku_webhook,omitempty"`
+	Reminder            map[string]Reminders `json:"reminder,omitempty"`
+	TimeZone            string               `json:"time_zone"`
+	DiscordHaikuWebhook string               `json:"discord_haiku_webhook,omitempty"`
 }
 
 type Config struct {

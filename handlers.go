@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"github.com/srevinsaju/orion/internal/discord"
 	"math/rand"
 	"strings"
 	"time"
-	"mvdan.cc/xurls"
+
 	"github.com/ernestas-poskus/syllables"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/google/go-github/github"
 	"github.com/robfig/cron/v3"
+	"github.com/srevinsaju/orion/internal/discord"
+	"mvdan.cc/xurls"
 )
 
 var RandomSource = rand.NewSource(time.Now().Unix())
@@ -342,7 +343,6 @@ func OnTwitterMessageHandler(h MessageHandlerArgs) {
 
 }
 
-
 /* OnInstagramMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
 func OnInstagramMessageHandler(h MessageHandlerArgs) {
 	oldLinks := xurls.Relaxed.FindAllString(h.update.Message.Text, -1)
@@ -351,10 +351,10 @@ func OnInstagramMessageHandler(h MessageHandlerArgs) {
 	for range oldLinks {
 		newLinks = append(newLinks, strings.Replace(h.update.Message.Text, "instagram.com", "bibliogram.nixnet.services/u", -1))
 	}
-    msg := tgbotapi.NewMessage(
-    	h.update.Message.Chat.ID,
-    	fmt.Sprintf("Use the <b>privacy friendly</b> alternative to Instagram: 📷 <i>Bibliogram</i>\n%s",
-    		strings.Join(newLinks, "\n")))
+	msg := tgbotapi.NewMessage(
+		h.update.Message.Chat.ID,
+		fmt.Sprintf("Use the <b>privacy friendly</b> alternative to Instagram: 📷 <i>Bibliogram</i>\n%s",
+			strings.Join(newLinks, "\n")))
 	msg.ParseMode = "html"
 	_, err := h.bot.Send(msg)
 	if err != nil {
@@ -362,7 +362,6 @@ func OnInstagramMessageHandler(h MessageHandlerArgs) {
 	}
 
 }
-
 
 /* OnRelievedMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
 func OnRelievedMessageHandler(h MessageHandlerArgs) {
@@ -424,6 +423,17 @@ func OnIdMessageHandler(h MessageHandlerArgs) {
 	}
 }
 
+/* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
+func On8BallMessageHandler(h MessageHandlerArgs) {
+	msg := tgbotapi.NewMessage(
+		h.update.Message.Chat.ID, Shake(h.update.Message.Text))
+	msg.ReplyToMessageID = h.update.Message.MessageID
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+}
+
 /* OnHaikuMessageHandler matches those messages which have no associated commands with them */
 func OnHaikuMessageHandler(h MessageHandlerArgs) {
 	if len(h.update.Message.Text) < 10 {
@@ -445,7 +455,7 @@ func OnHaikuMessageHandler(h MessageHandlerArgs) {
 		if trimmedWord == "" {
 			continue
 		}
-		if len(trimmedWord) == 1 && ! strings.Contains("aeiou", trimmedWord) {
+		if len(trimmedWord) == 1 && !strings.Contains("aeiou", trimmedWord) {
 			continue
 		}
 		if strings.Count(strings.ToLower(h.update.Message.Text), strings.ToLower(trimmedWord)) > 5 {
@@ -488,19 +498,18 @@ func OnHaikuMessageHandler(h MessageHandlerArgs) {
 	err = discord.SendWebhook(val.DiscordHaikuWebhook, discord.WebhookParams{
 		Username:  "Orion",
 		AvatarURL: "https://srev.in/img/giraffoidlitebot-128.jpg",
-		Embeds:    []*discord.MessageEmbed{{
-			Title:       "Haiku",
+		Embeds: []*discord.MessageEmbed{{
+			Title: "Haiku",
 			Description: fmt.Sprintf(
 				"%s\n%s\n%s",
 				strings.Join(haiku[0], " "),
 				strings.Join(haiku[1], " "),
 				strings.Join(haiku[2], " "),
 			),
-			Color:       0xe1a75b,
-			Footer:      &discord.MessageEmbedFooter{
-				Text:         fmt.Sprintf("~ %s %s, on %s", h.update.Message.From.FirstName, h.update.Message.From.LastName, h.update.Message.Time().UTC()),
+			Color: 0xe1a75b,
+			Footer: &discord.MessageEmbedFooter{
+				Text: fmt.Sprintf("~ %s %s, on %s", h.update.Message.From.FirstName, h.update.Message.From.LastName, h.update.Message.Time().UTC()),
 			},
-
 		}},
 	})
 	if err != nil {
