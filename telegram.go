@@ -74,6 +74,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		go OnRelievedMessageHandler(h)
 	}
 
+	if strings.Contains(messageTrimmedToLower, "😔😔😔") {
+		go OnSedMessageHandler(h)
+	}
+
 	if strings.Contains(messageTrimmedToLower, "🌞🌞🌞") {
 		go OnSunnyMessageHandler(h)
 	}
