@@ -426,12 +426,27 @@ func OnIdMessageHandler(h MessageHandlerArgs) {
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
 func On8BallMessageHandler(h MessageHandlerArgs) {
 	msg := tgbotapi.NewMessage(
-		h.update.Message.Chat.ID, Shake(h.update.Message.Text))
+		h.update.Message.Chat.ID, Shake(h.update.Message.CommandArguments()))
 	msg.ReplyToMessageID = h.update.Message.MessageID
 	_, err := h.bot.Send(msg)
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
+}
+
+/* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
+func OnVersionChangedHandler(h MessageHandlerArgs) {
+	for chanId, _ := range h.config.Channels {
+		msg := tgbotapi.NewMessage(
+			int64(chanId), fmt.Sprintf("I just updated my brain to v%d", Version))
+		_, err := h.bot.Send(msg)
+		if err != nil {
+			logger.Warnf("Couldn't send message without reply to message, %s", err)
+		}
+		h.config.Version = Version
+		h.config.Write()
+	}
+
 }
 
 /* OnHaikuMessageHandler matches those messages which have no associated commands with them */

@@ -57,6 +57,10 @@ func CreateConfig() {
 	}
 
 	outputBytes, err := json.MarshalIndent(cfg, "", "\t")
+	if err != nil {
+		logger.Fatal(err)
+		return
+	}
 	err = ioutil.WriteFile("gofer.json", outputBytes, 0644)
 	if err != nil {
 		logger.Fatal(err)
@@ -68,6 +72,10 @@ func CreateConfig() {
 /* ConfigFromFile creates a Config object from a JSON configuration file */
 func ConfigFromFile(filepath string) (*Config, error) {
 	rawData, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+
 	var cfg *Config
 	err = json.Unmarshal(rawData, &cfg)
 	if err != nil {

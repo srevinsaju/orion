@@ -136,6 +136,17 @@ func TelegramEventHandler(
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
+	// check if the version has changed
+
+	if config.Version != Version {
+		handlerArgs := &MessageHandlerArgs{
+			bot:       telegramBot,
+			arguments: "",
+			config:    config,
+		}
+		OnVersionChangedHandler(*handlerArgs)
+	}
+
 	updates, err := telegramBot.GetUpdatesChan(u)
 	if err != nil {
 		logger.Fatal("Failed to GetChannel updates channel")

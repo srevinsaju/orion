@@ -20,6 +20,7 @@ type ChannelConfig struct {
 }
 
 type Config struct {
+	Version          int                               `json:"version,omitempty"`
 	ChanAttr         map[TelegramChannel]TempChanAttr  `json:"chan_attr"`
 	Channels         map[TelegramChannel]ChannelConfig `json:"channels"`
 	TelegramApiToken string                            `json:"telegramApiToken"`
