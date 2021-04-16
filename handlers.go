@@ -427,7 +427,7 @@ func OnIdMessageHandler(h MessageHandlerArgs) {
 func On8BallMessageHandler(h MessageHandlerArgs) {
 	var msg tgbotapi.MessageConfig
 
-	if strings.Contains(h.update.Message.Text, ".ball") {
+	if !strings.Contains(h.update.Message.Text, ".ball") {
 		msg = tgbotapi.NewMessage(
 			h.update.Message.Chat.ID, Shake(h.update.Message.CommandArguments()))
 	} else {
