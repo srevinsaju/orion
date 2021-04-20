@@ -91,6 +91,10 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		return
 	}
 
+	if strings.Contains(messageTrimmedToLower, "iconic") && h.update.Message.ReplyToMessage != nil {
+		go OnPinMessageHandler(h)
+	}
+
 	// get the command and arguments
 	command, arguments, err := GetCommandArgumentFromMessage(h.bot, h.update)
 	if err != nil {
