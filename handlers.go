@@ -284,10 +284,12 @@ func OnCountMessageHandler(h MessageHandlerArgs) {
 
 /* OnMeMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
 func OnMeMessageHandler(h MessageHandlerArgs) {
+	h.bot.DeleteMessage(tgbotapi.NewDeleteMessage(h.update.Message.Chat.ID, h.update.Message.MessageID))
 	msg := tgbotapi.NewMessage(
 		h.update.Message.Chat.ID,
 		fmt.Sprintf("_* %s %s_", h.update.Message.From.FirstName, h.arguments))
 	msg.ParseMode = "markdown"
+	msg.DisableNotification = true
 	_, err := h.bot.Send(msg)
 	if err != nil {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
