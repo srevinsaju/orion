@@ -405,13 +405,7 @@ func OnSunnyMessageHandler(h MessageHandlerArgs) {
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
 func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
-	msg := tgbotapi.NewMessage(
-		h.update.Message.Chat.ID, "You would have to ask @sugaroidbot bro to answer this.")
-	msg.ReplyToMessageID = h.update.Message.MessageID
-	_, err := h.bot.Send(msg)
-	if err != nil {
-		logger.Warnf("Couldn't send message without reply to message, %s", err)
-	}
+    return
 }
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
