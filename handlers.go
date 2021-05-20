@@ -27,6 +27,7 @@ var SedResponses = []string{
 	"sed sed.",
 	"sed indeed.",
 	"sed.",
+	"세드 😔",
 	"sed tbh.",
 	"sed, but idk.",
 	"sed, but ok.",
@@ -405,7 +406,7 @@ func OnSunnyMessageHandler(h MessageHandlerArgs) {
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
 func OnMessageNotCommandMatchHandler(h MessageHandlerArgs) {
-    return
+	return
 }
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
