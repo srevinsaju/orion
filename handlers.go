@@ -367,6 +367,25 @@ func OnInstagramMessageHandler(h MessageHandlerArgs) {
 }
 
 /* OnRelievedMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
+func OnTripleEmojiHandler(h MessageHandlerArgs, emoji string) {
+	if Random.Intn(2) != 1 {
+		return
+	}
+	if len(h.update.Message.Text) > 20 {
+		// its a long message. No need to be soo sed for that
+		return
+	}
+
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, emoji)
+
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
+
+}
+
+/* OnRelievedMessageHandler handles messages which starts with /me and converts them to a familiar IRC-like statuses */
 func OnRelievedMessageHandler(h MessageHandlerArgs) {
 	if Random.Intn(2) != 1 {
 		return
