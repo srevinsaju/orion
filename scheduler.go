@@ -10,6 +10,19 @@ import (
 func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cron.Cron) {
 	for chanId, chanInstance := range config.Channels {
 		chanIdInt := int64(chanId)
+
+		c.AddFunc(
+			fmt.Sprintf("TZ=%s %s", chanInstance.TimeZone, "39 23 * * *"),
+			func() {
+				logger.Infof("Triggering Good morning job! in %s", chanId)
+				msgCron1 := tgbotapi.NewMessage(chanIdInt, "Good Morning! 🌤🌤🌤")
+				_, err__ := telegramBot.Send(msgCron1)
+				if err__ != nil {
+					logger.Warnf("Couldn't send message to channel")
+				}
+
+			},
+		)
 		for k, v := range chanInstance.Reminder {
 
 			instanceId, err := c.AddFunc(
