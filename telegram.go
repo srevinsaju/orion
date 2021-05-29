@@ -86,20 +86,17 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		go OnTripleEmojiHandler(h, "🤩🤩🤩")
 	}
 
-    if strings.Contains(messageTrimmedToLower, "😂😂😂") {
-        go OnTripleEmojiHandler(h, "😂😂😂")
+	if strings.Contains(messageTrimmedToLower, "😂😂😂") {
+		go OnTripleEmojiHandler(h, "😂😂😂")
 	}
 
-    if strings.Contains(messageTrimmedToLower, "💜💜💜") {
-        go OnTripleEmojiHandler(h, "💜💜💜")
+	if strings.Contains(messageTrimmedToLower, "💜💜💜") {
+		go OnTripleEmojiHandler(h, "💜💜💜")
 	}
 
-    if strings.Contains(messageTrimmedToLower, "👀👀👀") {
-        go OnTripleEmojiHandler(h, "👀👀👀")
+	if strings.Contains(messageTrimmedToLower, "👀👀👀") {
+		go OnTripleEmojiHandler(h, "👀👀👀")
 	}
-
-
-
 
 	if strings.Contains(messageTrimmedToLower, "twitter.com") {
 		go OnTwitterMessageHandler(h)

@@ -21,6 +21,7 @@ type ChannelConfig struct {
 
 type Config struct {
 	Version          int                               `json:"version,omitempty"`
+	VerseSubscribers []int                             `json:"verse_subscribers,omitempty"`
 	ChanAttr         map[TelegramChannel]TempChanAttr  `json:"chan_attr"`
 	Channels         map[TelegramChannel]ChannelConfig `json:"channels"`
 	TelegramApiToken string                            `json:"telegramApiToken"`
@@ -39,4 +40,32 @@ func (config *Config) Write() {
 	if err != nil {
 		logger.Fatal("Failed to write configuration file to %s, %s", config.configPath, err)
 	}
+}
+
+type Quote struct {
+	Text   string `json:"quote"`
+	Author string `json:"author"`
+	Title  string `json:"title"`
+}
+
+type Content struct {
+	Quotes []Quote `json:"quotes"`
+}
+
+type QuoteOfTheDay struct {
+	Contents Content `json:"contents"`
+}
+
+type VerseDetails struct {
+	Text      string `json:"text"`
+	Reference string `json:"reference"`
+	Version   string `json:"version"`
+}
+
+type VerseMeta struct {
+	Details VerseDetails `json:"details"`
+}
+
+type VOTD struct {
+	Verse VerseMeta `json:"verse"`
 }
