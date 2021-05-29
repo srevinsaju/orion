@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/google/go-github/github"
@@ -72,6 +74,55 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 
 	if strings.Contains(messageTrimmedToLower, "😌😌😌") {
 		go OnRelievedMessageHandler(h)
+	}
+
+	if strings.Contains(messageTrimmedToLower, "duh! 😎") {
+		go func(h MessageHandlerArgs) {
+			msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "Please not that bad guy again 🙏")
+			h.bot.Send(msg)
+		}(h)
+	}
+
+	if strings.Contains(messageTrimmedToLower, " dumb") {
+		go func(h MessageHandlerArgs) {
+			msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "#liteeffect")
+			h.bot.Send(msg)
+		}(h)
+	}
+
+	if strings.Contains(messageTrimmedToLower, "better ") || strings.Contains(messageTrimmedToLower, " better") {
+		go func(h MessageHandlerArgs) {
+			msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "* butter 💜")
+			h.bot.Send(msg)
+		}(h)
+	}
+
+	if strings.Contains(messageTrimmedToLower, "@sugaroidbot bye") {
+		go func(h MessageHandlerArgs) {
+			msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, fmt.Sprintf("#ritualcompleted by %s", h.update.Message.From.FirstName))
+			msg.ReplyToMessageID = h.update.Message.MessageID
+			h.bot.Send(msg)
+		}(h)
+	}
+
+	if strings.Contains(messageTrimmedToLower, "gunnyt") || strings.Contains(messageTrimmedToLower, "good night") {
+		go func(h MessageHandlerArgs) {
+			time.Sleep(time.Second * 0)
+			gunnytMessage := GoodNightResponses[Random.Intn(len(GoodNightResponses))]
+			if strings.Contains(gunnytMessage, "%s") {
+				gunnytMessage = fmt.Sprintf(gunnytMessage, h.update.Message.From.FirstName)
+			}
+			msg := tgbotapi.NewMessage(
+				h.update.Message.Chat.ID,
+				gunnytMessage,
+			)
+			msg.ReplyToMessageID = h.update.Message.MessageID
+			h.bot.Send(msg)
+		}(h)
+	}
+
+	if strings.Contains(messageTrimmedToLower, "eh?") {
+		go OnEhMessageHandler(h)
 	}
 
 	if strings.Contains(messageTrimmedToLower, "😔😔😔") {

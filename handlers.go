@@ -37,6 +37,22 @@ var SedResponses = []string{
 	"issok... keep going...",
 }
 
+var EhResponses = []string{
+	"issok bruh..",
+	"happens.. happens a lot..",
+	"😂😂😂",
+	"nvm bruh... not meant for you 😌👍",
+	"lite bruh moment 💯",
+}
+
+var GoodNightResponses = []string{
+	"Good night %s ✨",
+	"Sweet dreams, %s ✨",
+	"Go to bed, you sleepy head! ✨💤",
+	"Sleep well %s ✨💤",
+	"nyt nyt %s 💫",
+}
+
 /* OnReportMessageHandler retrieves the message which was quoted and then pins it */
 func OnReportMessageHandler(h MessageHandlerArgs) {
 	if h.update.Message.ReplyToMessage == nil {
@@ -421,6 +437,14 @@ func OnSunnyMessageHandler(h MessageHandlerArgs) {
 		logger.Warnf("Couldn't send message without reply to message, %s", err)
 	}
 
+}
+
+func OnEhMessageHandler(h MessageHandlerArgs) {
+	msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, EhResponses[Random.Intn(len(EhResponses))])
+	_, err := h.bot.Send(msg)
+	if err != nil {
+		logger.Warnf("Couldn't send message without reply to message, %s", err)
+	}
 }
 
 /* OnMessageNotCommandMatchHandler matches those messages which have no associated commands with them */
