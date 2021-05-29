@@ -29,6 +29,7 @@ type TempChanAttr struct {
 }
 
 var TempChanAttrs = map[TelegramChannel]*TempChanAttr{}
+var peopleDisambiguation = []string{"ppl", "people", "everyone", "all", "peeps", "advance"}
 
 /* GetChannel gets the channel from the channel configuration. */
 func GetChannel(h MessageHandlerArgs) (*ChannelConfig, error) {
@@ -105,7 +106,14 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		}(h)
 	}
 
-	if strings.Contains(messageTrimmedToLower, "gunnyt") || strings.Contains(messageTrimmedToLower, "good night") {
+	wishingEveryone := false
+	for i := range peopleDisambiguation {
+		if strings.Contains(messageTrimmedToLower, peopleDisambiguation[i]) {
+			wishingEveryone = true
+			break
+		}
+	}
+	if (strings.Contains(messageTrimmedToLower, "gunnyt") || strings.Contains(messageTrimmedToLower, "good night")) && wishingEveryone {
 		go func(h MessageHandlerArgs) {
 			time.Sleep(time.Second * 0)
 			gunnytMessage := GoodNightResponses[Random.Intn(len(GoodNightResponses))]
