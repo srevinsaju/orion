@@ -27,7 +27,7 @@ func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cro
 	for i := range config.VerseSubscribers {
 		userId := config.VerseSubscribers[i]
 		c.AddFunc(
-			fmt.Sprintf("TZ=Asia/Bahrain %s", "59 11 * * *"),
+			fmt.Sprintf("TZ=Asia/Bahrain %s", "00 5 * * *"),
 			func() {
 				votd := VOTD{}
 				err := getJson("https://beta.ourmanna.com/api/v1/get/?format=json", &votd)
