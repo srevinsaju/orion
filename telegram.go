@@ -77,7 +77,7 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		go OnRelievedMessageHandler(h)
 	}
 
-	if strings.Contains(messageTrimmedToLower, "duh! 😎") {
+    if strings.Contains(messageTrimmedToLower, "duh! 😎") || strings.Contains(messageTrimmedToLower, "duh!😎") { 
 		go func(h MessageHandlerArgs) {
 			msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "Please not that bad guy again 🙏")
 			h.bot.Send(msg)
