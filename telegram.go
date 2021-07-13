@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/google/go-github/github"
@@ -69,13 +68,13 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 
 	// start another go routine for handling messages with sed
 	messageTrimmedToLower := strings.Trim(strings.ToLower(h.update.Message.Text), " ")
-	if strings.Contains(messageTrimmedToLower, "sed") || strings.Contains(messageTrimmedToLower, "세드") {
+	/*if strings.Contains(messageTrimmedToLower, "sed") || strings.Contains(messageTrimmedToLower, "세드") {
 		go OnSedMessageHandler(h)
-	}
+	}*/
 
-	if strings.Contains(messageTrimmedToLower, "😌😌😌") {
+	/*if strings.Contains(messageTrimmedToLower, "😌😌😌") {
 		go OnRelievedMessageHandler(h)
-	}
+	}*/
 
     if strings.Contains(messageTrimmedToLower, "duh! 😎") || strings.Contains(messageTrimmedToLower, "duh!😎") { 
 		go func(h MessageHandlerArgs) {
@@ -84,19 +83,19 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		}(h)
 	}
 
-	if strings.Contains(messageTrimmedToLower, " dumb") {
+	/*if strings.Contains(messageTrimmedToLower, " dumb") {
 		go func(h MessageHandlerArgs) {
 			msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "#liteeffect")
 			h.bot.Send(msg)
 		}(h)
-	}
+	}*/
 
-	if strings.Contains(messageTrimmedToLower, "better ") || strings.Contains(messageTrimmedToLower, " better") {
+	/*if strings.Contains(messageTrimmedToLower, "better ") || strings.Contains(messageTrimmedToLower, " better") {
 		go func(h MessageHandlerArgs) {
 			msg := tgbotapi.NewMessage(h.update.Message.Chat.ID, "* butter 💜")
 			h.bot.Send(msg)
 		}(h)
-	}
+	}*/
 
 	if strings.Contains(messageTrimmedToLower, "@sugaroidbot bye") {
 		go func(h MessageHandlerArgs) {
@@ -106,13 +105,13 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		}(h)
 	}
 
-	wishingEveryone := false
+	/*wishingEveryone := false
 	for i := range peopleDisambiguation {
 		if strings.Contains(messageTrimmedToLower, peopleDisambiguation[i]) {
 			wishingEveryone = true
 			break
 		}
-	}
+    }
 	if (strings.Contains(messageTrimmedToLower, "gunnyt") || strings.Contains(messageTrimmedToLower, "good night")) && wishingEveryone {
 		go func(h MessageHandlerArgs) {
 			time.Sleep(time.Second * 0)
@@ -127,11 +126,11 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 			msg.ReplyToMessageID = h.update.Message.MessageID
 			h.bot.Send(msg)
 		}(h)
-	}
+    }
 
 	if strings.Contains(messageTrimmedToLower, "eh?") {
 		go OnEhMessageHandler(h)
-	}
+	}*/
 
 	if strings.Contains(messageTrimmedToLower, "😔😔😔") {
 		go OnSedMessageHandler(h)
@@ -141,9 +140,9 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		go OnSunnyMessageHandler(h)
 	}
 
-	if strings.Contains(messageTrimmedToLower, "🤩🤩🤩") {
+	/*if strings.Contains(messageTrimmedToLower, "🤩🤩🤩") {
 		go OnTripleEmojiHandler(h, "🤩🤩🤩")
-	}
+	}*/
 
 	if strings.Contains(messageTrimmedToLower, "😂😂😂") {
 		go OnTripleEmojiHandler(h, "😂😂😂")
@@ -183,12 +182,6 @@ func TelegramOnMessageHandler(h MessageHandlerArgs) {
 		handler = OnPinMessageHandler
 	case "me":
 		handler = OnMeMessageHandler
-	case "schedule":
-		handler = OnScheduleMessageHandler
-	case "unschedule":
-		handler = OnUnScheduleMessageHandler
-	case "listscheduled":
-		handler = OnListScheduleMessageHandler
 	case "plus":
 		handler = OnPlusesMessageHandler
 	case "tex":

@@ -50,10 +50,10 @@ func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cro
 
 	}
 
-	for chanId, chanInstance := range config.Channels {
+	/*for chanId, chanInstance := range config.Channels {
 		chanIdInt := int64(chanId)
 
-		c.AddFunc(
+		/*c.AddFunc(
 			fmt.Sprintf("TZ=%s %s", chanInstance.TimeZone, "59 23 * * *"),
 			func() {
 				logger.Infof("Triggering Good morning job! in %s", chanId)
@@ -99,7 +99,7 @@ func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cro
 				}
 
 			},
-		)
+        )
 		for k, v := range chanInstance.Reminder {
 
 			instanceId, err := c.AddFunc(
@@ -117,6 +117,6 @@ func ScheduleCronFromConfig(config *Config, telegramBot *tgbotapi.BotAPI, c *cro
 				g.instanceId = int(instanceId)
 			}
 			logger.Infof("Setting cron at %s, %s with instanceId[%s][%s]", k, err, instanceId, v.What)
-		}
-	}
+        }
+	}*/
 }
