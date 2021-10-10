@@ -15,7 +15,6 @@ RUN go get -d -v
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o /go/bin/orion
 
 
-FROM scratch
+FROM alpine:latest
 COPY --from=builder /go/bin/orion /go/bin/orion
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 ENTRYPOINT ["/go/bin/orion", "/etc/orion/config.json"]
